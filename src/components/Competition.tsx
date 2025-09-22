@@ -234,6 +234,10 @@ const Competition: React.FC = () => {
       {selectedPlayer && (
         <div className="score-entry" key={`${selectedPlayer}-${selectedDate}`}>
           <h3>Enter Stableford Points - {courseName}</h3>
+          <div style={{padding: '10px', background: '#f0f0f0', marginBottom: '10px', fontSize: '12px'}}>
+            DEBUG: Player={selectedPlayer}, Date={selectedDate}, DataLoaded={roundScores.length},
+            CurrentRoundPoints={currentRound.reduce((sum, h) => sum + h.stablefordPoints, 0)}
+          </div>
           <div className="holes-grid">
             {currentRound.map(hole => (
               <div key={hole.hole} className="hole-entry">

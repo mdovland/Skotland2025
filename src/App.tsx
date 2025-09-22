@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import TripInfo from './components/TripInfo';
 import Competition from './components/Competition';
+import Results from './components/Results';
 import './App.css';
 
-type TabType = 'info' | 'competition';
+type TabType = 'info' | 'competition' | 'results';
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabType>('info');
@@ -25,12 +26,19 @@ function App() {
           >
             Competition
           </button>
+          <button
+            className={activeTab === 'results' ? 'active' : ''}
+            onClick={() => setActiveTab('results')}
+          >
+            Results
+          </button>
         </nav>
       </header>
 
       <main className="App-main">
         {activeTab === 'info' && <TripInfo />}
         {activeTab === 'competition' && <Competition />}
+        {activeTab === 'results' && <Results />}
       </main>
     </div>
   );

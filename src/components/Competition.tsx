@@ -48,6 +48,26 @@ const Competition: React.FC = () => {
     setLdPlayer(ld?.playerId || '');
   }, [selectedDate, specialShots]);
 
+  useEffect(() => {
+    // Load existing scores for selected player and date, or reset to zeros
+    if (selectedPlayer && selectedDate) {
+      const existingScore = roundScores.find(s => s.playerId === selectedPlayer && s.date === selectedDate);
+
+      if (existingScore) {
+        // Load existing scores
+        setCurrentRound(existingScore.scores);
+      } else {
+        // Reset to blank/zero scores
+        setCurrentRound(Array.from({ length: 18 }, (_, i) => ({
+          hole: i + 1,
+          strokes: 0,
+          par: 4,
+          stablefordPoints: 0
+        })));
+      }
+    }
+  }, [selectedPlayer, selectedDate, roundScores]);
+
   const handlePointsChange = (hole: number, points: number) => {
     const updatedScores = currentRound.map(score => {
       if (score.hole === hole) {

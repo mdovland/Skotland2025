@@ -7,7 +7,7 @@ export const players: Player[] = [
   { id: '4', name: 'Michael Dovland', handicap: 0 },
   { id: '5', name: 'Fredrik Andersson', handicap: 0 },
   { id: '6', name: 'Fredrik Käck', handicap: 0 },
-  { id: '7', name: 'Toni Bukaki', handicap: 0 },
+  { id: '7', name: 'Toni Bukkaki', handicap: 0 },
   { id: '8', name: 'Magnus Agren', handicap: 0 },
 ];
 

@@ -219,7 +219,6 @@ const Results: React.FC = () => {
                 <th>Course</th>
                 <th>Competition</th>
                 <th>Winner</th>
-                <th>Prize</th>
               </tr>
             </thead>
             <tbody>
@@ -229,12 +228,11 @@ const Results: React.FC = () => {
                   <td>{winner.course}</td>
                   <td>{winner.competition}</td>
                   <td className="winner-name">{winner.winner}</td>
-                  <td className="prize">{winner.prize} SEK</td>
                 </tr>
               ))}
               {winners.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="no-results">No competitions completed yet</td>
+                  <td colSpan={4} className="no-results">No competitions completed yet</td>
                 </tr>
               )}
             </tbody>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { players } from '../data/initialData';
 import { RoundScore, SpecialShot } from '../types';
 import './Results.css';
@@ -30,11 +30,7 @@ const Results: React.FC = () => {
     if (savedSpecialShots) setSpecialShots(JSON.parse(savedSpecialShots));
   }, []);
 
-  useEffect(() => {
-    calculateWinners();
-  }, [roundScores, specialShots]);
-
-  const calculateWinners = () => {
+  const calculateWinners = useCallback(() => {
     const allWinners: CompetitionWinner[] = [];
     const totals: { [key: string]: number } = {};
 
@@ -153,7 +149,11 @@ const Results: React.FC = () => {
 
     setWinners(allWinners);
     setPlayerTotals(totals);
-  };
+  }, [roundScores, specialShots]);
+
+  useEffect(() => {
+    calculateWinners();
+  }, [calculateWinners]);
 
   const formatDate = (dateStr: string) => {
     if (dateStr === 'Overall') return '';

@@ -134,6 +134,23 @@
   gap: 10px;
 }
 
+.course-card.expanded {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 20px;
+  border: 2px solid #3498db;
+  background: white;
+}
+
+.course-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e9ecef;
+}
+
 .course-date {
   font-weight: bold;
   color: #495057;
@@ -145,6 +162,56 @@
   font-weight: 600;
   color: #2c3e50;
   flex: 1;
+}
+
+.course-times {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.time-slot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.time-label {
+  font-weight: 600;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.time-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.driver-info {
+  margin-top: 20px;
+}
+
+.driver-card {
+  background: #27ae60;
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.driver-label {
+  font-size: 16px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.driver-phone {
+  font-size: 20px;
+  font-weight: bold;
 }
 
 .course-time {

@@ -9,6 +9,51 @@ const TripInfo: React.FC = () => {
       <p className="trip-dates">24-28 September 2025</p>
 
       <div className="info-section">
+        <h3>⛳ Golf Schedule</h3>
+        <div className="courses">
+          {tripInfo.courses.map((course, index) => (
+            <div key={index} className="course-card expanded">
+              <div className="course-header">
+                <div className="course-date">
+                  {new Date(course.date).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
+                </div>
+                <div className="course-name">{course.name}</div>
+              </div>
+              <div className="course-times">
+                <div className="time-slot">
+                  <span className="time-label">🚐 Pickup:</span>
+                  <span className="time-value">{course.pickupTime}</span>
+                </div>
+                <div className="time-slot">
+                  <span className="time-label">⛳ Tee Off:</span>
+                  <span className="time-value">{course.teeOffTime}</span>
+                </div>
+                <div className="time-slot">
+                  <span className="time-label">🚐 Return:</span>
+                  <span className="time-value">{course.returnTime}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="driver-info">
+          <div className="driver-card">
+            <div className="driver-label">🚐 Henderson Travel Driver</div>
+            <div className="driver-phone">📞 {tripInfo.driverPhone}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="info-section">
+        <h3>🏨 Accommodation</h3>
+        <div className="hotel-card">
+          <div className="hotel-name">{tripInfo.hotel.name}</div>
+          <div className="hotel-address">{tripInfo.hotel.address}</div>
+          <div className="hotel-phone">📞 {tripInfo.hotel.phone}</div>
+        </div>
+      </div>
+
+      <div className="info-section">
         <h3>✈️ Flights</h3>
         <div className="flights">
           {tripInfo.flights.map((flight, index) => (
@@ -32,32 +77,6 @@ const TripInfo: React.FC = () => {
                   <div className="code">{flight.toCode}</div>
                   <div className="time">{flight.arrivalTime}</div>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="info-section">
-        <h3>🏨 Accommodation</h3>
-        <div className="hotel-card">
-          <div className="hotel-name">{tripInfo.hotel.name}</div>
-          <div className="hotel-address">{tripInfo.hotel.address}</div>
-          <div className="hotel-phone">📞 {tripInfo.hotel.phone}</div>
-        </div>
-      </div>
-
-      <div className="info-section">
-        <h3>⛳ Golf Schedule</h3>
-        <div className="courses">
-          {tripInfo.courses.map((course, index) => (
-            <div key={index} className="course-card">
-              <div className="course-date">
-                {new Date(course.date).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}
-              </div>
-              <div className="course-name">{course.name}</div>
-              <div className="course-time">
-                🕐 {course.startTime} - {course.endTime}
               </div>
             </div>
           ))}

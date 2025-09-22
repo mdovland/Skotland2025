@@ -19,6 +19,9 @@ export interface Flight {
 export interface Course {
   date: string;
   name: string;
+  pickupTime: string;
+  teeOffTime: string;
+  returnTime: string;
   startTime: string;
   endTime: string;
 }
@@ -33,6 +36,7 @@ export interface TripInfo {
   flights: Flight[];
   hotel: Hotel;
   courses: Course[];
+  driverPhone: string;
 }
 
 export interface HoleScore {

@@ -45,22 +45,32 @@ export const tripInfo: TripInfo = {
     {
       date: '2025-09-25',
       name: 'Kilspindie Golf Club',
+      pickupTime: '09:10',
+      teeOffTime: '10:30',
+      returnTime: '16:30',
       startTime: '10:30',
       endTime: '16:30'
     },
     {
       date: '2025-09-26',
       name: 'Dunbar Golf Club',
+      pickupTime: '10:00',
+      teeOffTime: '11:30',
+      returnTime: '17:30',
       startTime: '11:30',
       endTime: '17:30'
     },
     {
       date: '2025-09-27',
       name: 'Gullane Golf Club No2',
+      pickupTime: '11:10',
+      teeOffTime: '12:24',
+      returnTime: '18:30',
       startTime: '12:24',
       endTime: '18:30'
     }
-  ]
+  ],
+  driverPhone: '+441620895000'
 };
 
 export const competitions: Competition[] = [

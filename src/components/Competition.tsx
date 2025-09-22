@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { players } from '../data/initialData';
 import { RoundScore, HoleScore, SpecialShot } from '../types';
+import { FirebaseDataService } from '../firebase/dataService';
 import './Competition.css';
 
 const courseNames: { [key: string]: string } = {
@@ -56,36 +57,56 @@ const Competition: React.FC = () => {
   );
 
   useEffect(() => {
-    const savedScores = localStorage.getItem('roundScores');
-    const savedSpecialShots = localStorage.getItem('specialShots');
+    let unsubscribeRoundScores: (() => void) | undefined;
+    let unsubscribeSpecialShots: (() => void) | undefined;
 
-    if (savedScores) {
-      const parsedScores = JSON.parse(savedScores);
-      // Check if we have the right number of scores (should be 24: 8 players × 3 days)
-      if (parsedScores.length === players.length * 3) {
-        setRoundScores(parsedScores);
-      } else {
-        // Data is incomplete, reinitialize
+    const initializeFirebase = async () => {
+      try {
+        // Initialize with default data if needed
         const initialScores = initializeAllScores();
-        setRoundScores(initialScores);
-        localStorage.setItem('roundScores', JSON.stringify(initialScores));
-      }
-    } else {
-      // First time - initialize with all zeros
-      const initialScores = initializeAllScores();
-      setRoundScores(initialScores);
-      localStorage.setItem('roundScores', JSON.stringify(initialScores));
-    }
+        await FirebaseDataService.initializeData(initialScores);
 
-    if (savedSpecialShots) setSpecialShots(JSON.parse(savedSpecialShots));
+        // Subscribe to real-time updates
+        unsubscribeRoundScores = FirebaseDataService.subscribeToRoundScores((scores) => {
+          setRoundScores(scores);
+        });
+
+        unsubscribeSpecialShots = FirebaseDataService.subscribeToSpecialShots((shots) => {
+          setSpecialShots(shots);
+        });
+      } catch (error) {
+        console.error('Firebase initialization error:', error);
+        // Fallback to localStorage if Firebase fails
+        const savedScores = localStorage.getItem('roundScores');
+        if (savedScores) {
+          setRoundScores(JSON.parse(savedScores));
+        } else {
+          const initialScores = initializeAllScores();
+          setRoundScores(initialScores);
+        }
+      }
+    };
+
+    initializeFirebase();
+
+    // Cleanup subscriptions on unmount
+    return () => {
+      if (unsubscribeRoundScores) unsubscribeRoundScores();
+      if (unsubscribeSpecialShots) unsubscribeSpecialShots();
+    };
   }, []);
 
+  // Keep localStorage as backup but primary storage is Firebase
   useEffect(() => {
-    localStorage.setItem('roundScores', JSON.stringify(roundScores));
+    if (roundScores.length > 0) {
+      localStorage.setItem('roundScores', JSON.stringify(roundScores));
+    }
   }, [roundScores]);
 
   useEffect(() => {
-    localStorage.setItem('specialShots', JSON.stringify(specialShots));
+    if (specialShots.length > 0) {
+      localStorage.setItem('specialShots', JSON.stringify(specialShots));
+    }
   }, [specialShots]);
 
   useEffect(() => {
@@ -127,57 +148,73 @@ const Competition: React.FC = () => {
     setCurrentRound(updatedScores);
   };
 
-  const saveRound = () => {
+  const saveRound = async () => {
     if (!selectedPlayer) return;
 
-    const totalPoints = currentRound.reduce((sum, hole) => sum + hole.stablefordPoints, 0);
-    const frontNinePoints = currentRound.slice(0, 9).reduce((sum, hole) => sum + hole.stablefordPoints, 0);
-    const backNinePoints = currentRound.slice(9).reduce((sum, hole) => sum + hole.stablefordPoints, 0);
+    try {
+      const totalPoints = currentRound.reduce((sum, hole) => sum + hole.stablefordPoints, 0);
+      const frontNinePoints = currentRound.slice(0, 9).reduce((sum, hole) => sum + hole.stablefordPoints, 0);
+      const backNinePoints = currentRound.slice(9).reduce((sum, hole) => sum + hole.stablefordPoints, 0);
 
-    const newScore: RoundScore = {
-      playerId: selectedPlayer,
-      courseId: selectedDate,
-      date: selectedDate,
-      scores: currentRound,
-      totalStrokes: 0,
-      totalStablefordPoints: totalPoints,
-      frontNinePoints,
-      backNinePoints
-    };
+      const newScore: RoundScore = {
+        playerId: selectedPlayer,
+        courseId: selectedDate,
+        date: selectedDate,
+        scores: currentRound,
+        totalStrokes: 0,
+        totalStablefordPoints: totalPoints,
+        frontNinePoints,
+        backNinePoints
+      };
 
-    const existingIndex = roundScores.findIndex(
-      s => s.playerId === selectedPlayer && s.date === selectedDate
-    );
+      const existingIndex = roundScores.findIndex(
+        s => s.playerId === selectedPlayer && s.date === selectedDate
+      );
 
-    if (existingIndex >= 0) {
-      const updated = [...roundScores];
-      updated[existingIndex] = newScore;
-      setRoundScores(updated);
-    } else {
-      setRoundScores([...roundScores, newScore]);
+      let updatedScores: RoundScore[];
+      if (existingIndex >= 0) {
+        updatedScores = [...roundScores];
+        updatedScores[existingIndex] = newScore;
+      } else {
+        updatedScores = [...roundScores, newScore];
+      }
+
+      // Save to Firebase (this will trigger real-time updates for all users)
+      await FirebaseDataService.saveRoundScores(updatedScores);
+
+      alert('Round saved successfully! 🏌️‍♂️');
+    } catch (error) {
+      console.error('Error saving round:', error);
+      alert('Error saving round. Please try again.');
     }
-
-    alert('Round saved successfully!');
   };
 
-  const saveSpecialShot = (type: 'closestToPin' | 'longestDrive', playerId: string) => {
+  const saveSpecialShot = async (type: 'closestToPin' | 'longestDrive', playerId: string) => {
     if (!playerId) return;
 
-    const updatedShots = specialShots.filter(s => !(s.date === selectedDate && s.type === type));
+    try {
+      const updatedShots = specialShots.filter(s => !(s.date === selectedDate && s.type === type));
 
-    const newShot: SpecialShot = {
-      playerId,
-      courseId: selectedDate,
-      date: selectedDate,
-      type
-    };
+      const newShot: SpecialShot = {
+        playerId,
+        courseId: selectedDate,
+        date: selectedDate,
+        type
+      };
 
-    setSpecialShots([...updatedShots, newShot]);
+      const finalShots = [...updatedShots, newShot];
 
-    if (type === 'closestToPin') {
-      setCtpPlayer(playerId);
-    } else {
-      setLdPlayer(playerId);
+      // Save to Firebase (this will trigger real-time updates for all users)
+      await FirebaseDataService.saveSpecialShots(finalShots);
+
+      if (type === 'closestToPin') {
+        setCtpPlayer(playerId);
+      } else {
+        setLdPlayer(playerId);
+      }
+    } catch (error) {
+      console.error('Error saving special shot:', error);
+      alert('Error saving special shot. Please try again.');
     }
   };
 

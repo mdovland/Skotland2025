@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { players } from '../data/initialData';
 import { RoundScore, SpecialShot } from '../types';
+import { FirebaseDataService } from '../firebase/dataService';
 import './Results.css';
 
 const courseNames: { [key: string]: string } = {
@@ -24,10 +25,36 @@ const Results: React.FC = () => {
   const [playerTotals, setPlayerTotals] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
-    const savedScores = localStorage.getItem('roundScores');
-    const savedSpecialShots = localStorage.getItem('specialShots');
-    if (savedScores) setRoundScores(JSON.parse(savedScores));
-    if (savedSpecialShots) setSpecialShots(JSON.parse(savedSpecialShots));
+    let unsubscribeRoundScores: (() => void) | undefined;
+    let unsubscribeSpecialShots: (() => void) | undefined;
+
+    const initializeFirebase = async () => {
+      try {
+        // Subscribe to real-time updates
+        unsubscribeRoundScores = FirebaseDataService.subscribeToRoundScores((scores) => {
+          setRoundScores(scores || []);
+        });
+
+        unsubscribeSpecialShots = FirebaseDataService.subscribeToSpecialShots((shots) => {
+          setSpecialShots(shots || []);
+        });
+      } catch (error) {
+        console.error('Firebase initialization error in Results:', error);
+        // Fallback to localStorage if Firebase fails
+        const savedScores = localStorage.getItem('roundScores');
+        const savedSpecialShots = localStorage.getItem('specialShots');
+        if (savedScores) setRoundScores(JSON.parse(savedScores));
+        if (savedSpecialShots) setSpecialShots(JSON.parse(savedSpecialShots));
+      }
+    };
+
+    initializeFirebase();
+
+    // Cleanup subscriptions on unmount
+    return () => {
+      if (unsubscribeRoundScores) unsubscribeRoundScores();
+      if (unsubscribeSpecialShots) unsubscribeSpecialShots();
+    };
   }, []);
 
   const calculateWinners = useCallback(() => {

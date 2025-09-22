@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { players } from '../data/initialData';
-import { Player, RoundScore, HoleScore, SpecialShot } from '../types';
-import { calculateStablefordPoints } from '../utils/stableford';
+import { RoundScore, HoleScore, SpecialShot } from '../types';
 import './Competition.css';
 
 const Competition: React.FC = () => {
@@ -33,14 +32,10 @@ const Competition: React.FC = () => {
     localStorage.setItem('specialShots', JSON.stringify(specialShots));
   }, [specialShots]);
 
-  const handleScoreChange = (hole: number, strokes: number) => {
-    const player = players.find(p => p.id === selectedPlayer);
-    if (!player) return;
-
+  const handlePointsChange = (hole: number, points: number) => {
     const updatedScores = currentRound.map(score => {
       if (score.hole === hole) {
-        const points = strokes > 0 ? calculateStablefordPoints(strokes, score.par, player.handicap, hole) : 0;
-        return { ...score, strokes, stablefordPoints: points };
+        return { ...score, stablefordPoints: points };
       }
       return score;
     });
@@ -50,7 +45,6 @@ const Competition: React.FC = () => {
   const saveRound = () => {
     if (!selectedPlayer) return;
 
-    const totalStrokes = currentRound.reduce((sum, hole) => sum + hole.strokes, 0);
     const totalPoints = currentRound.reduce((sum, hole) => sum + hole.stablefordPoints, 0);
     const frontNinePoints = currentRound.slice(0, 9).reduce((sum, hole) => sum + hole.stablefordPoints, 0);
     const backNinePoints = currentRound.slice(9).reduce((sum, hole) => sum + hole.stablefordPoints, 0);
@@ -60,7 +54,7 @@ const Competition: React.FC = () => {
       courseId: selectedDate,
       date: selectedDate,
       scores: currentRound,
-      totalStrokes,
+      totalStrokes: 0,
       totalStablefordPoints: totalPoints,
       frontNinePoints,
       backNinePoints
@@ -79,21 +73,6 @@ const Competition: React.FC = () => {
     }
 
     alert('Round saved successfully!');
-  };
-
-  const addSpecialShot = (type: 'closestToPin' | 'longestDrive', hole: number, distance: number) => {
-    if (!selectedPlayer) return;
-
-    const newShot: SpecialShot = {
-      playerId: selectedPlayer,
-      courseId: selectedDate,
-      date: selectedDate,
-      type,
-      hole,
-      distance
-    };
-
-    setSpecialShots([...specialShots, newShot]);
   };
 
   const getLeaderboard = (type: 'front9' | 'back9' | 'fullRound') => {
@@ -146,7 +125,7 @@ const Competition: React.FC = () => {
 
       {selectedPlayer && (
         <div className="score-entry">
-          <h3>Enter Scores</h3>
+          <h3>Enter Stableford Points</h3>
           <div className="holes-grid">
             {currentRound.map(hole => (
               <div key={hole.hole} className="hole-entry">
@@ -154,13 +133,18 @@ const Competition: React.FC = () => {
                 <input
                   type="number"
                   min="0"
-                  max="10"
-                  value={hole.strokes || ''}
-                  onChange={(e) => handleScoreChange(hole.hole, parseInt(e.target.value) || 0)}
+                  max="5"
+                  value={hole.stablefordPoints || ''}
+                  onChange={(e) => handlePointsChange(hole.hole, parseInt(e.target.value) || 0)}
+                  placeholder="Points"
                 />
-                <span className="points">{hole.stablefordPoints} pts</span>
               </div>
             ))}
+          </div>
+          <div className="total-display">
+            <span>Front 9: {currentRound.slice(0, 9).reduce((sum, h) => sum + h.stablefordPoints, 0)} pts</span>
+            <span>Back 9: {currentRound.slice(9).reduce((sum, h) => sum + h.stablefordPoints, 0)} pts</span>
+            <span>Total: {currentRound.reduce((sum, h) => sum + h.stablefordPoints, 0)} pts</span>
           </div>
           <button onClick={saveRound} className="save-btn">Save Round</button>
         </div>

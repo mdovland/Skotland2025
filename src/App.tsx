@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import TripInfo from './components/TripInfo';
 import Competition from './components/Competition';
-import PlayerManagement from './components/PlayerManagement';
 import './App.css';
 
-type TabType = 'info' | 'competition' | 'players';
+type TabType = 'info' | 'competition';
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabType>('info');
@@ -26,19 +25,12 @@ function App() {
           >
             Competition
           </button>
-          <button
-            className={activeTab === 'players' ? 'active' : ''}
-            onClick={() => setActiveTab('players')}
-          >
-            Players
-          </button>
         </nav>
       </header>
 
       <main className="App-main">
         {activeTab === 'info' && <TripInfo />}
         {activeTab === 'competition' && <Competition />}
-        {activeTab === 'players' && <PlayerManagement />}
       </main>
     </div>
   );

@@ -252,9 +252,6 @@ const Competition: React.FC = () => {
   return (
     <div className="competition">
       <h2>Competition Scoring</h2>
-      <div style={{background: 'red', color: 'white', padding: '20px', fontSize: '20px', textAlign: 'center'}}>
-        🚨 DEBUG VERSION - CODE IS LOADING! 🚨
-      </div>
 
       <div className="controls">
         <select value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)}>
@@ -274,10 +271,6 @@ const Competition: React.FC = () => {
       {selectedPlayer && (
         <div className="score-entry" key={`${selectedPlayer}-${selectedDate}`}>
           <h3>Enter Stableford Points - {courseName}</h3>
-          <div style={{padding: '10px', background: '#f0f0f0', marginBottom: '10px', fontSize: '12px'}}>
-            DEBUG: Player={selectedPlayer}, Date={selectedDate}, DataLoaded={roundScores.length},
-            CurrentRoundPoints={currentRound.reduce((sum, h) => sum + h.stablefordPoints, 0)}
-          </div>
           <div className="holes-grid">
             {currentRound.map(hole => (
               <div key={hole.hole} className="hole-entry">

@@ -48,16 +48,19 @@ const Competition: React.FC = () => {
     setLdPlayer(ld?.playerId || '');
   }, [selectedDate, specialShots]);
 
+  // Load scores when player or date changes
   useEffect(() => {
-    // Load existing scores for selected player and date, or reset to zeros
     if (selectedPlayer && selectedDate) {
-      const existingScore = roundScores.find(s => s.playerId === selectedPlayer && s.date === selectedDate);
+      // Get current saved scores from localStorage directly to avoid stale state
+      const savedScores = localStorage.getItem('roundScores');
+      const currentRoundScores = savedScores ? JSON.parse(savedScores) : [];
+
+      const existingScore = currentRoundScores.find(s => s.playerId === selectedPlayer && s.date === selectedDate);
 
       if (existingScore) {
-        // Load existing scores
         setCurrentRound(existingScore.scores);
       } else {
-        // Reset to blank/zero scores
+        // Reset to blank scores
         setCurrentRound(Array.from({ length: 18 }, (_, i) => ({
           hole: i + 1,
           strokes: 0,
@@ -66,7 +69,7 @@ const Competition: React.FC = () => {
         })));
       }
     }
-  }, [selectedPlayer, selectedDate, roundScores]);
+  }, [selectedPlayer, selectedDate]);
 
   const handlePointsChange = (hole: number, points: number) => {
     const updatedScores = currentRound.map(score => {

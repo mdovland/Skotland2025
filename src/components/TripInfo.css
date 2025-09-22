@@ -1,0 +1,169 @@
+.trip-info {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.trip-info h2 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.trip-dates {
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 18px;
+  margin-bottom: 30px;
+}
+
+.info-section {
+  margin-bottom: 30px;
+}
+
+.info-section h3 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 5px;
+}
+
+.flights {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.flight-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #dee2e6;
+}
+
+.flight-header {
+  font-weight: bold;
+  color: #495057;
+  margin-bottom: 10px;
+}
+
+.flight-route {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.airport {
+  text-align: center;
+}
+
+.city {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.code {
+  font-size: 24px;
+  font-weight: bold;
+  color: #3498db;
+  margin: 5px 0;
+}
+
+.time {
+  font-size: 16px;
+  color: #495057;
+}
+
+.flight-details {
+  flex: 1;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.line {
+  font-size: 24px;
+  color: #3498db;
+  margin: 5px 0;
+}
+
+.duration {
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.hotel-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #dee2e6;
+}
+
+.hotel-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.hotel-address {
+  color: #6c757d;
+  margin-bottom: 8px;
+}
+
+.hotel-phone {
+  color: #495057;
+  font-weight: 500;
+}
+
+.courses {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.course-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.course-date {
+  font-weight: bold;
+  color: #495057;
+  min-width: 100px;
+}
+
+.course-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  flex: 1;
+}
+
+.course-time {
+  color: #6c757d;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .flight-route {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .flight-details {
+    padding: 10px 0;
+  }
+
+  .course-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

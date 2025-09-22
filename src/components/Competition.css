@@ -1,0 +1,167 @@
+.competition {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.competition h2 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.controls {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.controls select {
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 16px;
+  background: white;
+}
+
+.score-entry {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.score-entry h3 {
+  margin-bottom: 15px;
+  color: #2c3e50;
+}
+
+.holes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.hole-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.hole-entry label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+}
+
+.hole-entry input {
+  padding: 5px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.hole-entry .points {
+  text-align: center;
+  color: #28a745;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.save-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: block;
+  margin: 0 auto;
+}
+
+.save-btn:hover {
+  background: #218838;
+}
+
+.leaderboards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.leaderboard {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.leaderboard.overall {
+  grid-column: 1 / -1;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.leaderboard h3 {
+  background: #3498db;
+  color: white;
+  margin: 0;
+  padding: 12px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.leaderboard.overall h3 {
+  background: #27ae60;
+}
+
+.leaderboard table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard th {
+  background: #f8f9fa;
+  padding: 8px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.leaderboard td {
+  padding: 8px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.leaderboard tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.leaderboard tr.winner {
+  background: #fff3cd;
+}
+
+.leaderboard tr.winner td {
+  font-weight: bold;
+}
+
+@media (max-width: 600px) {
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .holes-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .leaderboards {
+    grid-template-columns: 1fr;
+  }
+}

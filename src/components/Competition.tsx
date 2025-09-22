@@ -215,6 +215,9 @@ const Competition: React.FC = () => {
   return (
     <div className="competition">
       <h2>Competition Scoring</h2>
+      <div style={{background: 'red', color: 'white', padding: '20px', fontSize: '20px', textAlign: 'center'}}>
+        🚨 DEBUG VERSION - CODE IS LOADING! 🚨
+      </div>
 
       <div className="controls">
         <select value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)}>

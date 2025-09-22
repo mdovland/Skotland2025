@@ -12,6 +12,36 @@ const courseNames: { [key: string]: string } = {
 const Competition: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string>('2025-09-25');
   const [selectedPlayer, setSelectedPlayer] = useState<string>('');
+  // Initialize all possible scores with zeros
+  const initializeAllScores = (): RoundScore[] => {
+    const allScores: RoundScore[] = [];
+    const dates = ['2025-09-25', '2025-09-26', '2025-09-27'];
+
+    players.forEach(player => {
+      dates.forEach(date => {
+        const blankScores = Array.from({ length: 18 }, (_, i) => ({
+          hole: i + 1,
+          strokes: 0,
+          par: 4,
+          stablefordPoints: 0
+        }));
+
+        allScores.push({
+          playerId: player.id,
+          courseId: date,
+          date: date,
+          scores: blankScores,
+          totalStrokes: 0,
+          totalStablefordPoints: 0,
+          frontNinePoints: 0,
+          backNinePoints: 0
+        });
+      });
+    });
+
+    return allScores;
+  };
+
   const [roundScores, setRoundScores] = useState<RoundScore[]>([]);
   const [specialShots, setSpecialShots] = useState<SpecialShot[]>([]);
   const [ctpPlayer, setCtpPlayer] = useState<string>('');
@@ -28,7 +58,16 @@ const Competition: React.FC = () => {
   useEffect(() => {
     const savedScores = localStorage.getItem('roundScores');
     const savedSpecialShots = localStorage.getItem('specialShots');
-    if (savedScores) setRoundScores(JSON.parse(savedScores));
+
+    if (savedScores) {
+      setRoundScores(JSON.parse(savedScores));
+    } else {
+      // First time - initialize with all zeros
+      const initialScores = initializeAllScores();
+      setRoundScores(initialScores);
+      localStorage.setItem('roundScores', JSON.stringify(initialScores));
+    }
+
     if (savedSpecialShots) setSpecialShots(JSON.parse(savedSpecialShots));
   }, []);
 
@@ -50,26 +89,13 @@ const Competition: React.FC = () => {
 
   // Load scores when player or date changes
   useEffect(() => {
-    if (selectedPlayer && selectedDate) {
-      // Get current saved scores from localStorage directly to avoid stale state
-      const savedScores = localStorage.getItem('roundScores');
-      const currentRoundScores = savedScores ? JSON.parse(savedScores) : [];
-
-      const existingScore = currentRoundScores.find(s => s.playerId === selectedPlayer && s.date === selectedDate);
-
+    if (selectedPlayer && selectedDate && roundScores.length > 0) {
+      const existingScore = roundScores.find(s => s.playerId === selectedPlayer && s.date === selectedDate);
       if (existingScore) {
         setCurrentRound(existingScore.scores);
-      } else {
-        // Reset to blank scores
-        setCurrentRound(Array.from({ length: 18 }, (_, i) => ({
-          hole: i + 1,
-          strokes: 0,
-          par: 4,
-          stablefordPoints: 0
-        })));
       }
     }
-  }, [selectedPlayer, selectedDate]);
+  }, [selectedPlayer, selectedDate, roundScores]);
 
   const handlePointsChange = (hole: number, points: number) => {
     const updatedScores = currentRound.map(score => {
@@ -177,37 +203,7 @@ const Competition: React.FC = () => {
           <option value="2025-09-27">Sept 27 - Gullane</option>
         </select>
 
-        <select value={selectedPlayer} onChange={(e) => {
-          const newPlayer = e.target.value;
-          setSelectedPlayer(newPlayer);
-
-          // Immediately load scores for new player
-          if (newPlayer && selectedDate) {
-            const savedScores = localStorage.getItem('roundScores');
-            const currentRoundScores = savedScores ? JSON.parse(savedScores) : [];
-            const existingScore = currentRoundScores.find(s => s.playerId === newPlayer && s.date === selectedDate);
-
-            if (existingScore) {
-              setCurrentRound(existingScore.scores);
-            } else {
-              // Reset to blank scores immediately
-              setCurrentRound(Array.from({ length: 18 }, (_, i) => ({
-                hole: i + 1,
-                strokes: 0,
-                par: 4,
-                stablefordPoints: 0
-              })));
-            }
-          } else {
-            // Clear scores when no player selected
-            setCurrentRound(Array.from({ length: 18 }, (_, i) => ({
-              hole: i + 1,
-              strokes: 0,
-              par: 4,
-              stablefordPoints: 0
-            })));
-          }
-        }}>
+        <select value={selectedPlayer} onChange={(e) => setSelectedPlayer(e.target.value)}>
           <option value="">Select Player</option>
           {players.map(player => (
             <option key={player.id} value={player.id}>{player.name}</option>

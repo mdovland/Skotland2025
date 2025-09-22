@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/Skotland2025/static/css/main.1549634f.css",
-    "main.js": "/Skotland2025/static/js/main.4dbad6d2.js",
+    "main.css": "/Skotland2025/static/css/main.8166d125.css",
+    "main.js": "/Skotland2025/static/js/main.8755ad2f.js",
     "static/js/453.99e11ae0.chunk.js": "/Skotland2025/static/js/453.99e11ae0.chunk.js",
     "index.html": "/Skotland2025/index.html",
-    "main.1549634f.css.map": "/Skotland2025/static/css/main.1549634f.css.map",
-    "main.4dbad6d2.js.map": "/Skotland2025/static/js/main.4dbad6d2.js.map",
+    "main.8166d125.css.map": "/Skotland2025/static/css/main.8166d125.css.map",
+    "main.8755ad2f.js.map": "/Skotland2025/static/js/main.8755ad2f.js.map",
     "453.99e11ae0.chunk.js.map": "/Skotland2025/static/js/453.99e11ae0.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.1549634f.css",
-    "static/js/main.4dbad6d2.js"
+    "static/css/main.8166d125.css",
+    "static/js/main.8755ad2f.js"
   ]
 }

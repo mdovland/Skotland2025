@@ -89,10 +89,17 @@ const Competition: React.FC = () => {
 
   // Load scores when player or date changes
   useEffect(() => {
+    console.log('Loading scores for:', { selectedPlayer, selectedDate, roundScoresLength: roundScores.length });
+
     if (selectedPlayer && selectedDate && roundScores.length > 0) {
       const existingScore = roundScores.find(s => s.playerId === selectedPlayer && s.date === selectedDate);
+      console.log('Found existing score:', existingScore);
+
       if (existingScore) {
-        setCurrentRound(existingScore.scores);
+        console.log('Setting currentRound to:', existingScore.scores);
+        setCurrentRound([...existingScore.scores]); // Force new array to trigger re-render
+      } else {
+        console.log('No existing score found, this should not happen with pre-initialized data');
       }
     }
   }, [selectedPlayer, selectedDate, roundScores]);

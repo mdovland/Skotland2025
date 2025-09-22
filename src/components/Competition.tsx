@@ -3,11 +3,19 @@ import { players } from '../data/initialData';
 import { RoundScore, HoleScore, SpecialShot } from '../types';
 import './Competition.css';
 
+const courseNames: { [key: string]: string } = {
+  '2025-09-25': 'Kilspindie',
+  '2025-09-26': 'Dunbar',
+  '2025-09-27': 'Gullane'
+};
+
 const Competition: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string>('2025-09-25');
   const [selectedPlayer, setSelectedPlayer] = useState<string>('');
   const [roundScores, setRoundScores] = useState<RoundScore[]>([]);
   const [specialShots, setSpecialShots] = useState<SpecialShot[]>([]);
+  const [ctpPlayer, setCtpPlayer] = useState<string>('');
+  const [ldPlayer, setLdPlayer] = useState<string>('');
   const [currentRound, setCurrentRound] = useState<HoleScore[]>(
     Array.from({ length: 18 }, (_, i) => ({
       hole: i + 1,
@@ -31,6 +39,14 @@ const Competition: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('specialShots', JSON.stringify(specialShots));
   }, [specialShots]);
+
+  useEffect(() => {
+    // Load saved special shots for current date
+    const ctp = specialShots.find(s => s.date === selectedDate && s.type === 'closestToPin');
+    const ld = specialShots.find(s => s.date === selectedDate && s.type === 'longestDrive');
+    setCtpPlayer(ctp?.playerId || '');
+    setLdPlayer(ld?.playerId || '');
+  }, [selectedDate, specialShots]);
 
   const handlePointsChange = (hole: number, points: number) => {
     const updatedScores = currentRound.map(score => {
@@ -75,6 +91,27 @@ const Competition: React.FC = () => {
     alert('Round saved successfully!');
   };
 
+  const saveSpecialShot = (type: 'closestToPin' | 'longestDrive', playerId: string) => {
+    if (!playerId) return;
+
+    const updatedShots = specialShots.filter(s => !(s.date === selectedDate && s.type === type));
+
+    const newShot: SpecialShot = {
+      playerId,
+      courseId: selectedDate,
+      date: selectedDate,
+      type
+    };
+
+    setSpecialShots([...updatedShots, newShot]);
+
+    if (type === 'closestToPin') {
+      setCtpPlayer(playerId);
+    } else {
+      setLdPlayer(playerId);
+    }
+  };
+
   const getLeaderboard = (type: 'front9' | 'back9' | 'fullRound') => {
     const dayScores = roundScores.filter(s => s.date === selectedDate);
 
@@ -104,6 +141,8 @@ const Competition: React.FC = () => {
     }).sort((a, b) => b.points - a.points);
   };
 
+  const courseName = courseNames[selectedDate];
+
   return (
     <div className="competition">
       <h2>Competition Scoring</h2>
@@ -125,7 +164,7 @@ const Competition: React.FC = () => {
 
       {selectedPlayer && (
         <div className="score-entry">
-          <h3>Enter Stableford Points</h3>
+          <h3>Enter Stableford Points - {courseName}</h3>
           <div className="holes-grid">
             {currentRound.map(hole => (
               <div key={hole.hole} className="hole-entry">
@@ -150,9 +189,47 @@ const Competition: React.FC = () => {
         </div>
       )}
 
+      <div className="special-competitions">
+        <div className="special-comp">
+          <h3>Closest to Pin - {courseName}</h3>
+          <select
+            value={ctpPlayer}
+            onChange={(e) => saveSpecialShot('closestToPin', e.target.value)}
+          >
+            <option value="">Select Winner</option>
+            {players.map(player => (
+              <option key={player.id} value={player.id}>{player.name}</option>
+            ))}
+          </select>
+          {ctpPlayer && (
+            <div className="winner-display">
+              Winner: {players.find(p => p.id === ctpPlayer)?.name} (400 SEK)
+            </div>
+          )}
+        </div>
+
+        <div className="special-comp">
+          <h3>Longest Drive - {courseName}</h3>
+          <select
+            value={ldPlayer}
+            onChange={(e) => saveSpecialShot('longestDrive', e.target.value)}
+          >
+            <option value="">Select Winner</option>
+            {players.map(player => (
+              <option key={player.id} value={player.id}>{player.name}</option>
+            ))}
+          </select>
+          {ldPlayer && (
+            <div className="winner-display">
+              Winner: {players.find(p => p.id === ldPlayer)?.name} (400 SEK)
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="leaderboards">
         <div className="leaderboard">
-          <h3>Front 9 - {new Date(selectedDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</h3>
+          <h3>Front 9 - {courseName}</h3>
           <table>
             <thead>
               <tr>
@@ -163,7 +240,7 @@ const Competition: React.FC = () => {
             </thead>
             <tbody>
               {getLeaderboard('front9').map((entry, index) => (
-                <tr key={entry.player.id}>
+                <tr key={entry.player.id} className={index === 0 && entry.points > 0 ? 'winner' : ''}>
                   <td>{index + 1}</td>
                   <td>{entry.player.name}</td>
                   <td>{entry.points}</td>
@@ -174,7 +251,7 @@ const Competition: React.FC = () => {
         </div>
 
         <div className="leaderboard">
-          <h3>Back 9 - {new Date(selectedDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</h3>
+          <h3>Back 9 - {courseName}</h3>
           <table>
             <thead>
               <tr>
@@ -185,7 +262,7 @@ const Competition: React.FC = () => {
             </thead>
             <tbody>
               {getLeaderboard('back9').map((entry, index) => (
-                <tr key={entry.player.id}>
+                <tr key={entry.player.id} className={index === 0 && entry.points > 0 ? 'winner' : ''}>
                   <td>{index + 1}</td>
                   <td>{entry.player.name}</td>
                   <td>{entry.points}</td>
@@ -196,7 +273,7 @@ const Competition: React.FC = () => {
         </div>
 
         <div className="leaderboard">
-          <h3>Full Round - {new Date(selectedDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</h3>
+          <h3>Full Round - {courseName}</h3>
           <table>
             <thead>
               <tr>
@@ -207,7 +284,7 @@ const Competition: React.FC = () => {
             </thead>
             <tbody>
               {getLeaderboard('fullRound').map((entry, index) => (
-                <tr key={entry.player.id}>
+                <tr key={entry.player.id} className={index === 0 && entry.points > 0 ? 'winner' : ''}>
                   <td>{index + 1}</td>
                   <td>{entry.player.name}</td>
                   <td>{entry.points}</td>
@@ -230,11 +307,11 @@ const Competition: React.FC = () => {
             </thead>
             <tbody>
               {getOverallLeaderboard().map((entry, index) => (
-                <tr key={entry.player.id} className={index === 0 ? 'winner' : ''}>
+                <tr key={entry.player.id} className={index === 0 && entry.points > 0 ? 'winner' : ''}>
                   <td>{index + 1}</td>
                   <td>{entry.player.name}</td>
                   <td>{entry.points}</td>
-                  <td>{index === 0 ? '400 SEK' : '-'}</td>
+                  <td>{index === 0 && entry.points > 0 ? '400 SEK' : '-'}</td>
                 </tr>
               ))}
             </tbody>

@@ -48,7 +48,8 @@ const Results: React.FC = () => {
       const dayScores = roundScores.filter(s => s.date === date);
       const course = courseNames[date];
 
-      if (dayScores.length > 0) {
+      // Only calculate winners if ALL 8 players have submitted scores for this day
+      if (dayScores.length === players.length) {
         // Front 9 winner
         const front9Scores = dayScores.map(s => ({
           playerId: s.playerId,
@@ -101,7 +102,7 @@ const Results: React.FC = () => {
         }
       }
 
-      // Closest to Pin
+      // Closest to Pin (can be determined independently)
       const ctp = specialShots.find(s => s.date === date && s.type === 'closestToPin');
       if (ctp) {
         allWinners.push({
@@ -114,7 +115,7 @@ const Results: React.FC = () => {
         totals[ctp.playerId] += 400;
       }
 
-      // Longest Drive
+      // Longest Drive (can be determined independently)
       const ld = specialShots.find(s => s.date === date && s.type === 'longestDrive');
       if (ld) {
         allWinners.push({
@@ -128,8 +129,9 @@ const Results: React.FC = () => {
       }
     });
 
-    // Overall 3-Day Competition
-    if (roundScores.length > 0) {
+    // Overall 3-Day Competition - only if ALL players have completed ALL 3 rounds
+    const totalRoundsNeeded = players.length * 3; // 8 players × 3 days = 24 rounds
+    if (roundScores.length === totalRoundsNeeded) {
       const overallScores = players.map(player => {
         const totalPoints = roundScores
           .filter(s => s.playerId === player.id)
@@ -169,9 +171,43 @@ const Results: React.FC = () => {
       .sort((a, b) => b.total - a.total);
   };
 
+  const getCompletionStatus = () => {
+    const daysCompleted = ['2025-09-25', '2025-09-26', '2025-09-27'].filter(date => {
+      const dayScores = roundScores.filter(s => s.date === date);
+      return dayScores.length === players.length;
+    }).length;
+
+    const totalRoundsCompleted = roundScores.length;
+    const totalRoundsNeeded = players.length * 3;
+
+    return {
+      daysCompleted,
+      roundsCompleted: totalRoundsCompleted,
+      roundsNeeded: totalRoundsNeeded,
+      isComplete: totalRoundsCompleted === totalRoundsNeeded
+    };
+  };
+
+  const status = getCompletionStatus();
+
   return (
     <div className="results">
       <h2>Competition Results</h2>
+
+      <div className="completion-status">
+        <div className="status-card">
+          <h4>Competition Progress</h4>
+          <div className="progress-info">
+            <div>Days Completed: {status.daysCompleted} / 3</div>
+            <div>Rounds Entered: {status.roundsCompleted} / {status.roundsNeeded}</div>
+            {!status.isComplete && (
+              <div className="warning-text">
+                ⚠️ Winners will be determined when all players have submitted scores
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className="results-container">
         <div className="winners-section">

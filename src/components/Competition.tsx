@@ -20,7 +20,8 @@ const Competition: React.FC = () => {
 
     players.forEach(player => {
       dates.forEach(date => {
-        const blankScores = Array.from({ length: 18 }, (_, i) => ({
+        // Create dummy hole scores for compatibility (not used in UI)
+        const dummyScores = Array.from({ length: 18 }, (_, i) => ({
           hole: i + 1,
           strokes: 0,
           par: 4,
@@ -31,7 +32,7 @@ const Competition: React.FC = () => {
           playerId: player.id,
           courseId: date,
           date: date,
-          scores: blankScores,
+          scores: dummyScores,
           totalStrokes: 0,
           totalStablefordPoints: 0,
           frontNinePoints: 0,
@@ -47,14 +48,8 @@ const Competition: React.FC = () => {
   const [specialShots, setSpecialShots] = useState<SpecialShot[]>([]);
   const [ctpPlayer, setCtpPlayer] = useState<string>('');
   const [ldPlayer, setLdPlayer] = useState<string>('');
-  const [currentRound, setCurrentRound] = useState<HoleScore[]>(
-    Array.from({ length: 18 }, (_, i) => ({
-      hole: i + 1,
-      strokes: 0,
-      par: 4,
-      stablefordPoints: 0
-    }))
-  );
+  const [frontNinePoints, setFrontNinePoints] = useState<number>(0);
+  const [backNinePoints, setBackNinePoints] = useState<number>(0);
 
   useEffect(() => {
     let unsubscribeRoundScores: (() => void) | undefined;
@@ -123,48 +118,45 @@ const Competition: React.FC = () => {
       const existingScore = roundScores.find(s => s.playerId === selectedPlayer && s.date === selectedDate);
 
       if (existingScore) {
-        // Create a completely new array to force re-render
-        const newCurrentRound = existingScore.scores.map(score => ({ ...score }));
-        setCurrentRound(newCurrentRound);
+        setFrontNinePoints(existingScore.frontNinePoints);
+        setBackNinePoints(existingScore.backNinePoints);
+      } else {
+        // Reset to zeros for new entry
+        setFrontNinePoints(0);
+        setBackNinePoints(0);
       }
     } else if (!selectedPlayer) {
       // Clear form when no player selected
-      setCurrentRound(Array.from({ length: 18 }, (_, i) => ({
-        hole: i + 1,
-        strokes: 0,
-        par: 4,
-        stablefordPoints: 0
-      })));
+      setFrontNinePoints(0);
+      setBackNinePoints(0);
     }
   }, [selectedPlayer, selectedDate, roundScores]);
 
-  const handlePointsChange = (hole: number, points: number) => {
-    const updatedScores = currentRound.map(score => {
-      if (score.hole === hole) {
-        return { ...score, stablefordPoints: points };
-      }
-      return score;
-    });
-    setCurrentRound(updatedScores);
-  };
+  // No longer needed - we handle front/back nine directly
 
   const saveRound = async () => {
     if (!selectedPlayer) return;
 
     try {
-      const totalPoints = currentRound.reduce((sum, hole) => sum + hole.stablefordPoints, 0);
-      const frontNinePoints = currentRound.slice(0, 9).reduce((sum, hole) => sum + hole.stablefordPoints, 0);
-      const backNinePoints = currentRound.slice(9).reduce((sum, hole) => sum + hole.stablefordPoints, 0);
+      const totalPoints = frontNinePoints + backNinePoints;
+
+      // Create dummy hole scores for compatibility
+      const dummyScores = Array.from({ length: 18 }, (_, i) => ({
+        hole: i + 1,
+        strokes: 0,
+        par: 4,
+        stablefordPoints: 0 // Individual hole scores not tracked
+      }));
 
       const newScore: RoundScore = {
         playerId: selectedPlayer,
         courseId: selectedDate,
         date: selectedDate,
-        scores: currentRound,
+        scores: dummyScores,
         totalStrokes: 0,
         totalStablefordPoints: totalPoints,
-        frontNinePoints,
-        backNinePoints
+        frontNinePoints: frontNinePoints,
+        backNinePoints: backNinePoints
       };
 
       const existingIndex = roundScores.findIndex(
@@ -271,25 +263,38 @@ const Competition: React.FC = () => {
       {selectedPlayer && (
         <div className="score-entry" key={`${selectedPlayer}-${selectedDate}`}>
           <h3>Enter Stableford Points - {courseName}</h3>
-          <div className="holes-grid">
-            {currentRound.map(hole => (
-              <div key={hole.hole} className="hole-entry">
-                <label>Hole {hole.hole}</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="5"
-                  value={hole.stablefordPoints || ''}
-                  onChange={(e) => handlePointsChange(hole.hole, parseInt(e.target.value) || 0)}
-                  placeholder="0"
-                />
-              </div>
-            ))}
+          <div className="simplified-entry">
+            <div className="score-input-group">
+              <label>Front 9 Total Points</label>
+              <input
+                type="number"
+                min="0"
+                max="50"
+                value={frontNinePoints || ''}
+                onChange={(e) => setFrontNinePoints(parseInt(e.target.value) || 0)}
+                placeholder="0"
+                className="total-input"
+              />
+            </div>
+
+            <div className="score-input-group">
+              <label>Back 9 Total Points</label>
+              <input
+                type="number"
+                min="0"
+                max="50"
+                value={backNinePoints || ''}
+                onChange={(e) => setBackNinePoints(parseInt(e.target.value) || 0)}
+                placeholder="0"
+                className="total-input"
+              />
+            </div>
           </div>
+
           <div className="total-display">
-            <span>Front 9: {currentRound.slice(0, 9).reduce((sum, h) => sum + h.stablefordPoints, 0)} pts</span>
-            <span>Back 9: {currentRound.slice(9).reduce((sum, h) => sum + h.stablefordPoints, 0)} pts</span>
-            <span>Total: {currentRound.reduce((sum, h) => sum + h.stablefordPoints, 0)} pts</span>
+            <span>Front 9: {frontNinePoints} pts</span>
+            <span>Back 9: {backNinePoints} pts</span>
+            <span>Total: {frontNinePoints + backNinePoints} pts</span>
           </div>
           <button onClick={saveRound} className="save-btn">Save Round</button>
         </div>

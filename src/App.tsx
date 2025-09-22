@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import TripInfo from './components/TripInfo';
 import Competition from './components/Competition';
 import Results from './components/Results';
+import './firebase/admin'; // Import admin functions
 import './App.css';
 
 type TabType = 'info' | 'competition' | 'results';

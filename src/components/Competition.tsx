@@ -177,7 +177,37 @@ const Competition: React.FC = () => {
           <option value="2025-09-27">Sept 27 - Gullane</option>
         </select>
 
-        <select value={selectedPlayer} onChange={(e) => setSelectedPlayer(e.target.value)}>
+        <select value={selectedPlayer} onChange={(e) => {
+          const newPlayer = e.target.value;
+          setSelectedPlayer(newPlayer);
+
+          // Immediately load scores for new player
+          if (newPlayer && selectedDate) {
+            const savedScores = localStorage.getItem('roundScores');
+            const currentRoundScores = savedScores ? JSON.parse(savedScores) : [];
+            const existingScore = currentRoundScores.find(s => s.playerId === newPlayer && s.date === selectedDate);
+
+            if (existingScore) {
+              setCurrentRound(existingScore.scores);
+            } else {
+              // Reset to blank scores immediately
+              setCurrentRound(Array.from({ length: 18 }, (_, i) => ({
+                hole: i + 1,
+                strokes: 0,
+                par: 4,
+                stablefordPoints: 0
+              })));
+            }
+          } else {
+            // Clear scores when no player selected
+            setCurrentRound(Array.from({ length: 18 }, (_, i) => ({
+              hole: i + 1,
+              strokes: 0,
+              par: 4,
+              stablefordPoints: 0
+            })));
+          }
+        }}>
           <option value="">Select Player</option>
           {players.map(player => (
             <option key={player.id} value={player.id}>{player.name}</option>
@@ -186,7 +216,7 @@ const Competition: React.FC = () => {
       </div>
 
       {selectedPlayer && (
-        <div className="score-entry">
+        <div className="score-entry" key={`${selectedPlayer}-${selectedDate}`}>
           <h3>Enter Stableford Points - {courseName}</h3>
           <div className="holes-grid">
             {currentRound.map(hole => (

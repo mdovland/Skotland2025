@@ -60,7 +60,16 @@ const Competition: React.FC = () => {
     const savedSpecialShots = localStorage.getItem('specialShots');
 
     if (savedScores) {
-      setRoundScores(JSON.parse(savedScores));
+      const parsedScores = JSON.parse(savedScores);
+      // Check if we have the right number of scores (should be 24: 8 players × 3 days)
+      if (parsedScores.length === players.length * 3) {
+        setRoundScores(parsedScores);
+      } else {
+        // Data is incomplete, reinitialize
+        const initialScores = initializeAllScores();
+        setRoundScores(initialScores);
+        localStorage.setItem('roundScores', JSON.stringify(initialScores));
+      }
     } else {
       // First time - initialize with all zeros
       const initialScores = initializeAllScores();
@@ -89,18 +98,22 @@ const Competition: React.FC = () => {
 
   // Load scores when player or date changes
   useEffect(() => {
-    console.log('Loading scores for:', { selectedPlayer, selectedDate, roundScoresLength: roundScores.length });
-
     if (selectedPlayer && selectedDate && roundScores.length > 0) {
       const existingScore = roundScores.find(s => s.playerId === selectedPlayer && s.date === selectedDate);
-      console.log('Found existing score:', existingScore);
 
       if (existingScore) {
-        console.log('Setting currentRound to:', existingScore.scores);
-        setCurrentRound([...existingScore.scores]); // Force new array to trigger re-render
-      } else {
-        console.log('No existing score found, this should not happen with pre-initialized data');
+        // Create a completely new array to force re-render
+        const newCurrentRound = existingScore.scores.map(score => ({ ...score }));
+        setCurrentRound(newCurrentRound);
       }
+    } else if (!selectedPlayer) {
+      // Clear form when no player selected
+      setCurrentRound(Array.from({ length: 18 }, (_, i) => ({
+        hole: i + 1,
+        strokes: 0,
+        par: 4,
+        stablefordPoints: 0
+      })));
     }
   }, [selectedPlayer, selectedDate, roundScores]);
 

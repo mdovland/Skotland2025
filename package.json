@@ -2,7 +2,7 @@
   "name": "scotland-golf-2025",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://michaeldovland.github.io/Skotland2025",
+  "homepage": "https://mdovland.github.io/Skotland2025",
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.8.0",
